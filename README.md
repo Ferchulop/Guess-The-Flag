@@ -11,4 +11,5 @@ Guess The Flag es una app desarrollada en SwiftUI que consiste en adivinar la ba
 - Uso de modificadores .cliShape,.shadow, redimension con .scaleEffect, gradientes y efectos como .regularMaterials. Distintas vistas, Vstack, Zstack, Hstack, animaciones con withAnimation y rotaciones con rotation3DEffect junto a una gestión de alertas.
 
 
+![Simulator Screen Recording - iPhone 16 Pro - 2024-09-30 at 13 08 48](https://github.com/user-attachments/assets/98d3f6f6-f90e-4fc7-932e-65b32a100ed5)
 
