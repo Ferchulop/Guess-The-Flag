@@ -29,6 +29,20 @@ struct ContentView: View {
     @State private var scoreTitle = ""
     @State private var selectedFlag: Int? // CHALLENGE: Reescalar bandera no elegida
     @State private var score = 0//CHALLENGE: Añado @State para almacenar resultado.
+    // Added accesibility for the description of the flags
+    let labels = [
+        "Estonia": "Three horizontal stripes: blue on top, black in the middle, and white on the bottom.",
+        "France": "Three vertical stripes: blue on the left, white in the middle, and red on the right.",
+        "Germany": "Three horizontal stripes: black on top, red in the middle, and yellow on the bottom.",
+        "Ireland": "Three vertical stripes: green on the left, white in the middle, and orange on the right.",
+        "Italy": "Three vertical stripes: green on the left, white in the middle, and red on the right.",
+        "Nigeria": "Three vertical stripes: green on the sides (left and right) and white in the middle.",
+        "Poland": "Two horizontal stripes: white on top and red on the bottom.",
+        "Spain": "Three horizontal stripes: red on the top and bottom, yellow in the middle with the coat of arms on the left side of the yellow stripe.",
+        "UK": "The Union Jack combines the crosses of St George (red on white), St Andrew (white on blue), and St Patrick (red on white) in a design of diagonal and horizontal lines.",
+        "Ukraine": "Two horizontal stripes: blue on top and yellow on the bottom.",
+        "US": "Thirteen horizontal stripes alternating red and white, with a blue rectangle in the top left corner containing fifty white stars."
+    ]
     var body: some View {
         // Para que el color blanco de la bandera este sobre un fondo que sea notable envolvemos todo el body en un ZStack y le damos un fondo de color azul. Cogiendo toooda la pantalla del dispositivo con el modifier .ignoresSafeArea()
         ZStack {
@@ -74,82 +88,91 @@ struct ContentView: View {
                                 .rotation3DEffect(.degrees(animationAmount[number]),axis: (x: 0, y: 1, z: 0))
                                 .scaleEffect(selectedFlag == nil || selectedFlag == number ?  1 : 0.75) // Modificador para reescalar la bandera no elegida.
                             //Image(countries[number])
-                                //.clipShape(.capsule) // Modifico la vista de la imagen para verla con forma de capsula
-                                //.shadow(radius: 10) // Le añado sombra al contorno de las banderas
+                            //.clipShape(.capsule) // Modifico la vista de la imagen para verla con forma de capsula
+                            //.shadow(radius: 10) // Le añado sombra al contorno de las banderas
                         }
+                        // Added accesibility
+                        .accessibilityLabel(labels[countries[number], default: "Uknown flag"])
+                        
                     }
+                    
+                    .frame(maxWidth: .infinity)// Controlo tamaño y posición
+                    .padding(.vertical,20) // Controlo la separacion
+                    .background(.regularMaterial) // Le doy aspecto de material vidrio al fondo
+                    .clipShape(.rect(cornerRadius: 20)) // Fondo redondeado y sus esquinas con 20 puntos
+                    Spacer()// Añado espacios para rediseñar la app
+                    Spacer()
+                    Text("Score: \(score)")
+                        .foregroundStyle(.white)
+                        .font(.title.bold())
+                    Spacer()
                 }
-                .frame(maxWidth: .infinity)// Controlo tamaño y posición
-                .padding(.vertical,20) // Controlo la separacion
-                .background(.regularMaterial) // Le doy aspecto de material vidrio al fondo
-                .clipShape(.rect(cornerRadius: 20)) // Fondo redondeado y sus esquinas con 20 puntos
-                Spacer()// Añado espacios para rediseñar la app
-                Spacer()
-                Text("Score: \(score)")
-                    .foregroundStyle(.white)
-                    .font(.title.bold())
-                Spacer()
+                .padding() // Con el padding consigo crear un efecto ovalado entre el color azul y el color rojo
             }
-            .padding() // Con el padding consigo crear un efecto ovalado entre el color azul y el color rojo
-        }
-        // Utilizo el modificador de alerta para mostrar un pop - up cada vez que se presiona en una bandera incorrecta o correcta. Llamo a scoreTitle y hago un Binding State de showingscore para mostrar el resultado. Junto su boton y su accion de la funcion askQuestion para que pregunte una y otra vez al presionar el botón.
-        .alert(scoreTitle, isPresented: $showingScore) {
-            Button("Continue", action: askQuestion)
-                .opacity(0.25)
-        }message: {
-            Text("Your score is: \(score)")
-        }
-        .alert("Game Over",isPresented: $eightQuestions) {
-            Button("Restart", action: reset)
-                .opacity(0.25)
-        } message: {
-            Text("Your final score is: \(score)")
-        }
-    }
-    // Creo función para añadir funcionalidad al botón y comparar cuando number sea igual a una de las posiciones del array correctAnswer para que muestre un scoreTitle correcto y si no lo es que muestre un incorrecto. Finalmente llamo a showingScore = true para que muestre la visualizacion de la alerta que mas adelante configuraremos.
-    func flagTapped(_ number: Int) {
-        selectedFlag = number // Añado mi variable con la que reescalo la bandera NO elegida.
-        if number == correctAnswer {
-            scoreTitle = "Correct"
-            //CHALLENGE: Actualizo y almaceno variable si el valor es correcto +1
-            score += 1
-        } else {
-            //CHALLENGE: Actualizo el resultado erróneo para que me diga cual es la bandera que he seleccionado mal.LLamando al parametro de mi funcion
-            scoreTitle = "Wrong, that's the flag of: \(countries[number]) "
-            //CHALLENGE: Actualizo y almaceno variable si el valor es incorrecto -1
-            score -= 1
-        }
-
-                       correctAnswer = Int.random(in: 0...2)
-        // Modifico variable showingScore = true por countQuestion = 1 para que sume el contador de las preguntas con las preguntas del desafío, el cual manejare después para que sea hasta 8:
-        countQuestion += 1
-        //CHALLENGE: controlo con condicional if la cantidad de preguntas.
-        if countQuestion == 8 {
-            eightQuestions = true
-        } else  {
-            showingScore = true
-        }
-        //Reestablezco la animacion cada vez que intento adivinar la bandera
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            withAnimation {
-                selectedFlag = nil
-                animationAmount = [0.0, 0.0, 0.0]
+            // Utilizo el modificador de alerta para mostrar un pop - up cada vez que se presiona en una bandera incorrecta o correcta. Llamo a scoreTitle y hago un Binding State de showingscore para mostrar el resultado. Junto su boton y su accion de la funcion askQuestion para que pregunte una y otra vez al presionar el botón.
+            .alert(scoreTitle, isPresented: $showingScore) {
+                Button("Continue", action: askQuestion)
+                    .opacity(0.25)
+            }message: {
+                Text("Your score is: \(score)")
+            }
+            .alert("Game Over",isPresented: $eightQuestions) {
+                Button("Restart", action: reset)
+                    .opacity(0.25)
+            } message: {
+                Text("Your final score is: \(score)")
             }
         }
+        // Creo función para añadir funcionalidad al botón y comparar cuando number sea igual a una de las posiciones del array correctAnswer para que muestre un scoreTitle correcto y si no lo es que muestre un incorrecto. Finalmente llamo a showingScore = true para que muestre la visualizacion de la alerta que mas adelante configuraremos.
+        
     }
-    func askQuestion() {
-        // Modifico el orden de shuffle el cual no conserva su valor original en memoria.
-        countries.shuffle()
-        correctAnswer = Int.random(in: 0...2)
+        func flagTapped(_ number: Int) {
+            selectedFlag = number // Añado mi variable con la que reescalo la bandera NO elegida.
+            if number == correctAnswer {
+                scoreTitle = "Correct"
+                //CHALLENGE: Actualizo y almaceno variable si el valor es correcto +1
+                score += 1
+            } else {
+                //CHALLENGE: Actualizo el resultado erróneo para que me diga cual es la bandera que he seleccionado mal.LLamando al parametro de mi funcion
+                scoreTitle = "Wrong, that's the flag of: \(countries[number]) "
+                //CHALLENGE: Actualizo y almaceno variable si el valor es incorrecto -1
+                score -= 1
+            }
+            
+            correctAnswer = Int.random(in: 0...2)
+            // Modifico variable showingScore = true por countQuestion = 1 para que sume el contador de las preguntas con las preguntas del desafío, el cual manejare después para que sea hasta 8:
+            countQuestion += 1
+            //CHALLENGE: controlo con condicional if la cantidad de preguntas.
+            if countQuestion == 8 {
+                eightQuestions = true
+            } else  {
+                showingScore = true
+            }
+            //Reestablezco la animacion cada vez que intento adivinar la bandera
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                withAnimation {
+                    selectedFlag = nil
+                    animationAmount = [0.0, 0.0, 0.0]
+                }
+            }
+        }
+        
+        func askQuestion() {
+            // Modifico el orden de shuffle el cual no conserva su valor original en memoria.
+            countries.shuffle()
+            correctAnswer = Int.random(in: 0...2)
+        }
+        // CHALLENGE: Funcion que resetea el resultado final a 0.
+        
+        func reset() {
+            score = 0
+            countQuestion = 0
+            askQuestion()
+        }
     }
-    // CHALLENGE: Funcion que resetea el resultado final a 0.
-    func reset() {
-        score = 0
-        countQuestion = 0
-        askQuestion()
-    }
-}
 
-#Preview {
-    ContentView()
-}
+    
+    #Preview {
+        ContentView()
+    }
+
